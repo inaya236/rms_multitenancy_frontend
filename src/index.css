@@ -1,0 +1,79 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* base colors for multi-tenancy */
+:root{
+  --primary-color: #ff5722;
+  --secondary-color: #ffffff;
+  --sidebar-bg: #ffffff;
+}
+
+/* Remove arrows in number inputs */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spinner {
+  -moz-appearance: textfield;
+}
+
+
+ /* Custom Calendar  */
+.react-datepicker__day--highlighted-custom {
+  background-color: #facc15 !important; /* yellow */
+  color: black;
+  border-radius: 0.5rem;
+}
+
+.sunday-red {
+  color: red !important;
+  /* font-weight: bold; */
+}
+
+/* Works in Chromium-based browsers (Chrome, Edge) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 1;
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.react-datepicker {
+  font-size: 1rem;
+  border: none;
+  font-style: italic;
+  column-gap: 2px;
+  row-gap: 2px;
+}
+
+.react-datepicker__month-container {
+  background-color: rgba(255, 255, 255, 0.704);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #3b82f6 !important; /* blue-500 */
+  color: white;
+}
+
+.react-datepicker__day:hover {
+  background-color: hsla(214, 95%, 93%, 0.31) !important; /* blue*/
+}
+
+a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.daisy-tooltip {
+  @apply tooltip;
+}

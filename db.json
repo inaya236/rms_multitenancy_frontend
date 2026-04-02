@@ -1,0 +1,104 @@
+{
+  "transactionReports": [
+    {
+      "Transaction_id": 1,
+      "date": "12-7-25",
+      "patient_name": "aleena",
+      "reference": "Mrs.Zoya",
+      "category": "OPD",
+      "collected_by": "Mr.Faizan Khan",
+      "payment_mode": "card",
+      "amount": "$400",
+      "id": "35d8"
+    },
+    {
+      "Transaction_id": 2,
+      "date": "12-7-25",
+      "patient_name": "lisa",
+      "reference": "Mrs.Zainab",
+      "category": "OPD",
+      "collected_by": "Mr.Faizan Khan",
+      "payment_mode": "cash",
+      "amount": "$600",
+      "id": "2e62"
+    }
+  ],
+  "lab_prescriptions": [
+    {
+      "id": "1",
+      "date": "2025-09-08",
+      "test_name": "CBC",
+      "status": "completed"
+    },
+    {
+      "id": "2",
+      "date": "2025-09-08",
+      "test_name": "Liver Function Test",
+      "status": "inProgress"
+    },
+    {
+      "id": "3",
+      "date": "2025-09-08",
+      "test_name": "Blood Sugar",
+      "status": "Pending"
+    },
+    {
+      "id": "ad57",
+      "test": [
+        201,
+        101
+      ],
+      "date": "2025-09-09",
+      "status": "Pending"
+    },
+    {
+      "id": "fbbc",
+      "test": [
+        102
+      ],
+      "date": "2025-09-09",
+      "status": "Pending"
+    },
+    {
+      "id": "4d49",
+      "test": [
+        201,
+        202
+      ],
+      "date": "2025-09-09",
+      "status": "Pending"
+    }
+  ],
+  "LaboratoryDepartments": [
+    {
+      "id": "1",
+      "department_name": "Hematology"
+    },
+    {
+      "id": "2",
+      "department_name": "Biochemistry"
+    }
+  ],
+  "LabTest": [
+    {
+      "id": "101",
+      "name": "CBC",
+      "department": 1
+    },
+    {
+      "id": "102",
+      "name": "WBC",
+      "department": 1
+    },
+    {
+      "id": "201",
+      "name": "Liver Function Test",
+      "department": 2
+    },
+    {
+      "id": "202",
+      "name": "Blood Sugar",
+      "department": 2
+    }
+  ]
+}
