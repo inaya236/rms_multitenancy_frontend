@@ -37,6 +37,7 @@ import Base_URL from "../config";
 
 import { useRestaurant } from "./context/RestaurantContext";
 import Home from "./components/Landing/Home";
+import Overview from "./components/SuperAdmin/RestaurantManage/Restaurant_details/Overview";
 
 function App() {
 
@@ -114,6 +115,7 @@ if (accessToken && location.pathname === "/") {
             <Route path="/restaurantList" element={<RestaurantList />} />
             <Route path="/addRestaurant" element={<AddRestaurant />} />
             <Route path="/subscriptionBilling" element={<SubscriptionBilling />} />
+            <Route path="/overview" element={<Overview/>} />
 
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

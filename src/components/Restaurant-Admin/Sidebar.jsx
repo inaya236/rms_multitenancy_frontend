@@ -67,28 +67,34 @@ console.log("logo value:", restaurantLogo);
             </div>
 
 
-            <ul className="nav flex-column">
-              <li className="nav-item mb-2">
+            <ul className="flex flex-col gap-2">
+              <li className="">
                 <Link to="/adminDash" className="sidebar-link" onClick={closeSidebar}>
                   <FaTachometerAlt className="me-2" /> Dashboard
                 </Link>
               </li>
 
-              <li className="nav-item mb-2">
+              <li className="">
                 <Link to="/new-order" className="sidebar-link" onClick={closeSidebar}>
                   <FaPlusCircle className="me-2" /> New Order
                 </Link>
               </li>
 
-              <li className="nav-item mb-2">
+              <li className="">
                 <Link to="/orders/active" className="sidebar-link " onClick={closeSidebar}>
-                  <FaShoppingCart className="me-2" /> Active Orders
+                  <span className="w-5 min-w-[20px] flex justify-center">
+                  <FaShoppingCart className="me-2" /> 
+                  </span>
+                  Active Orders
                 </Link>
               </li>
 
-                <li className="nav-item mb-2">
+                <li className="">
                   <Link to="/completedorders" className="sidebar-link" onClick={closeSidebar}>
-                    <FaFileInvoiceDollar className="me-2" /> Completed Orders
+                  <span className="w-5 min-w-[20px] flex justify-center">
+                    <FaFileInvoiceDollar className="" /> 
+                    </span>
+                    Completed Orders
                   </Link>
                 </li>
 
@@ -98,15 +104,18 @@ console.log("logo value:", restaurantLogo);
                 </Link>
               </li> */}
 
-              <li className="nav-item mb-2">
+              <li className="">
                 <Link to="human-resources" className="sidebar-link" onClick={closeSidebar}>
-                  <FaUserTie className="me-2" /> Human Resource
+                <span className="w-5 min-w-[20px] flex justify-center">
+                  <FaUserTie className="" /> 
+                  </span>
+                  Human Resource
                 </Link>
               </li>
 
 
               {features.includes("CUSTOMER_INSIGHTS") && (
-                <li className="nav-item mb-2">
+                <li className="">
                   <Link to="/customerFeed" className="sidebar-link" onClick={closeSidebar}>
                     <FaUsers className="me-2" /> Customers
                   </Link>
@@ -114,14 +123,14 @@ console.log("logo value:", restaurantLogo);
               )}
 
               {features.includes("FEEDBACK") && (
-              <li className="nav-item mb-2">
+              <li className="">
                 <Link to="feedback" className="sidebar-link" onClick={closeSidebar}>
                   <VscFeedback className="me-2" size={20} /> FeedBack
                 </Link>
               </li>
               )}
 
-              <li className="nav-item mb-2 relative">
+              <li className="nav-item relative">
                 <button
                   onClick={() => setOpenConfig(!openConfig)}
                   className="sidebar-link w-full text-left flex items-center justify-between"
@@ -132,19 +141,25 @@ console.log("logo value:", restaurantLogo);
                   </span>
                 </button>
                 {openConfig && (
-                  <ul className="ml-4 mt-2 space-y-2">
+                  <ul className="mr-6 mt-1 flex flex-col gap-1">
 
                     {features.includes("TABLES") && (
-                      <li className="nav-item mb-2">
+                      <li className="">
                         <Link to="/inventory/tables" className="sidebar-link" onClick={closeSidebar}>
-                          <FaChair className="me-2" /> Table Inventory
+                  <span className="w-5 min-w-[20px] flex justify-center">
+                          <FaChair className="" /> 
+                          </span>
+                          Table Inventory
                         </Link>
                       </li>
                     )}
 
-                      <li className="nav-item mb-2">
+                      <li className="">
                         <Link to="menu-management" className="sidebar-link" onClick={closeSidebar}>
-                          <FaUtensils className="me-2" /> Menu Management
+                  <span className="w-5 min-w-[20px] flex justify-center">
+                          <FaUtensils className="me-2" />
+                          </span>
+                           Menu Management
                         </Link>
                       </li>
 
