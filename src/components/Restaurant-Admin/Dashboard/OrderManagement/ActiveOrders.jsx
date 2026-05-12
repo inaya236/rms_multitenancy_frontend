@@ -57,6 +57,27 @@ const fetchOrders=()=>{
     return <div className="p-6 text-gray-500">Loading Active Orders...</div>;
   }
 
+  
+  const deleteOrder = async (orderId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this order?");
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`${BASE_URL}orders/${orderId}/`);
+
+      // remove from UI instantly
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+
+      // OR you can call fetchOrders();
+      // fetchOrders();
+
+    } catch (error) {
+      console.error(error.response?.data || error.message);
+      alert("Failed to delete order");
+    }
+  };
+
+
   return (
     <div className="p-3 sm:p-4 lg:p-6">
 
@@ -119,7 +140,8 @@ const fetchOrders=()=>{
 
 
             {/* ACTIONS */}
-            <div className="mt-3 space-y-2">
+            <div className="mt-3 flex items-center gap-2">
+               <div className="flex-1 flex gap-2">
               <button
                 onClick={() =>
                   navigate(
@@ -151,6 +173,18 @@ const fetchOrders=()=>{
               >
                 View Bill & Pay
               </button>
+            </div>
+
+            {/* RIGHT SIDE (delete icon) */}
+              <button
+                onClick={() => deleteOrder(order.id)}
+                className="p-2 rounded-lg border border-red-200 
+    text-red-500 hover:bg-red-50 transition"
+                title="Delete Order"
+              >
+                <FaTrash />
+              </button>
+
             </div>
 
 

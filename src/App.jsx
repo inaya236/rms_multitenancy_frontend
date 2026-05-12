@@ -10,7 +10,7 @@ import SubscriptionBilling from "./components/SuperAdmin/SubscriptionBilling";
 /* restaurant admin */
 import AdminDash from "./components/Restaurant-Admin/Dashboard/AdminDashboard/AdminDash";
 import NewOrder from "./components/Restaurant-Admin/Dashboard/OrderManagement/NewOrder";
-import POS from "./components/Restaurant-admin/Dashboard/OrderManagement/POS";
+import POS from "./components/Restaurant-Admin/Dashboard/OrderManagement/POS";
 import ActiveOrders from "./components/Restaurant-Admin/Dashboard/OrderManagement/ActiveOrders";
 import CompletedOrders from "./components/Restaurant-admin/Dashboard/CompletedOrdersview/CompletedOrders";
 import CustomerFeed from "./components/Restaurant-admin/Dashboard/Customer/CustomerFeed";
@@ -38,16 +38,95 @@ import Base_URL from "../config";
 import { useRestaurant } from "./context/RestaurantContext";
 import Home from "./components/Landing/Home";
 import Overview from "./components/SuperAdmin/RestaurantManage/Restaurant_details/Overview";
+import Settings from "./components/Restaurant-Admin/Dashboard/AdminDashboard/Settings";
+
+import { onMessage } from "firebase/messaging";
+import { messaging } from "./firebase";
+import { toast } from "react-toastify";
 
 function App() {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openGstModal, setOpenGstModal] = useState(false);
 
+ const [notifications, setNotifications] = useState([
+  {
+    title: "New Order",
+    body: "Table 3 placed an order",
+    read: false,
+    time: new Date()
+  },
+  {
+    title: "Payment Received",
+    body: "Order #102 completed",
+    read: false,
+    time: new Date()
+  },
+  {
+    title: "Old Notification",
+    body: "Already read",
+    read: true,
+    time: new Date()
+  }
+]);
+
   const [authState, setAuthState] = useState({
     accessToken: localStorage.getItem("accessToken"),
     role: localStorage.getItem("role")
   });
+
+//  useEffect(() => {
+//   const unsubscribe = onMessage(messaging, (payload) => {
+//     console.log("📩 Message received:", payload);
+//     toast(
+//       payload.notification?.title + "\n" +
+//       payload.notification?.body
+//     );
+//   });
+
+// navigator.serviceWorker.ready.then(reg => {
+//   console.log("SW ready:", reg);
+// });
+//   return () => unsubscribe();
+// }, []);
+
+
+useEffect(() => {
+  onMessage(messaging, (payload) => {
+    const newNotification = {
+      title: payload.notification?.title,
+      body: payload.notification?.body,
+      time: new Date(),
+      read: false,
+    };
+
+    console.log("📩 Message:", newNotification);
+
+    setNotifications((prev) => [newNotification, ...prev]);
+  });
+}, []);
+
+useEffect(() => {
+  localStorage.setItem("notifications", JSON.stringify(notifications));
+}, [notifications]);
+
+useEffect(() => {
+  const saved = JSON.parse(localStorage.getItem("notifications")) || [];
+  setNotifications(saved);
+}, []);
+
+useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/firebase-messaging-sw.js")
+        .then((registration) => {
+          console.log("Service Worker registered:", registration);
+        })
+        .catch((error) => {
+          console.error("Service Worker registration failed:", error);
+        });
+    }
+  }, []);
 
   useEffect(() => {
     const handleUserChange = () => {
@@ -101,7 +180,8 @@ if (accessToken && location.pathname === "/") {
     location.pathname === "/adminProfile" ||
     location.pathname === "/forgotpassword" ||
     location.pathname === "/resetpassword" ||
-    location.pathname === "/changepassword";
+    location.pathname === "/changepassword" ||
+    location.pathname === "/settings";
 
   return (
     <>
@@ -126,7 +206,8 @@ if (accessToken && location.pathname === "/") {
       {/* ---------------- RESTAURANT ADMIN ---------------- */}
       {isAdmin && (
         <>
-          <div className="flex h-screen bg-gray-100 overflow-hidden">
+        
+          <div className={`flex ${location.pathname === "/settings" ? "min-h-screen overflow-y-auto" : "h-screen overflow-hidden"}  bg-gray-100 `}>
 
             {/* Mobile overlay */}
             {isSidebarOpen && (
@@ -160,7 +241,7 @@ if (accessToken && location.pathname === "/") {
 
               {!hideLayout && (
                 <div className="h-14 bg-white shadow-md w-full sticky top-0 z-40">
-                  <MyNavbar toggleSidebar={toggleSidebar} />
+                  <MyNavbar toggleSidebar={toggleSidebar} notifications={notifications}  setNotifications={setNotifications}/>
                 </div>
               )}
 
@@ -187,6 +268,9 @@ if (accessToken && location.pathname === "/") {
                   <Route path="/feedback" element={<FeedBack />} />
                   <Route path="/human-resources" element={<HumanResources />} />
                   <Route path="/adminProfile" element={<AdminProfile />} />
+                  <Route path="/settings" element={<Settings />} />
+          <Route path="/changepassword" element={<ChangePassword />} />
+
 
                   <Route path="/adminDash" element={<AdminDash/>} />
                 </Routes>
@@ -224,6 +308,8 @@ if (accessToken && location.pathname === "/") {
           <Route path="/changepassword" element={<ChangePassword />} />
 
           <Route path="*" element={<Navigate to="/login" />} />
+          <Route path="/settings" element={<Settings />} />
+
         </Routes>
        )} 
     </>

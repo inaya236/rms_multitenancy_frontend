@@ -29,6 +29,9 @@ const POS = () => {
   const [showBill, setShowBill] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
 
+  const [catSearch, setCatSearch] = useState("");
+const [itemSearch, setItemSearch] = useState("");
+
   const location = useLocation();
 
     const accessToken=localStorage.getItem("accessToken")
@@ -237,19 +240,33 @@ const POS = () => {
           Authorization:`Bearer ${accessToken}`
         }
       });
+        navigate("/orders/active");
+        setCart([]);
         console.log("patch res", payload);
 
       } else {
         // NEW ORDER
+
+           const validItems = payload.order_items.filter(item => item.quantity > 0);
+
+        if (validItems.length === 0) {
+          toast.error("Order must contain at least one item");
+          setIsSubmitting(false);
+
+          return;
+        }
+        payload.order_items = validItems;
+
         await axios.post(`${BASE_URL}orders/`, payload,{
         headers:{
           Authorization:`Bearer ${accessToken}`
         }
       });
+            setCart([]);
+      navigate("/orders/active");
       }
 
-      setCart([]);
-      navigate("/orders/active");
+
     } catch (err) {
       console.error("KOT ERROR:", err.response?.data || err.message);
       if (err.response?.data === "Order must contain at least one item"){
@@ -338,6 +355,17 @@ const POS = () => {
     setIsSubmittingPay(false);
   };
 
+   const filteredCategories = categories.filter((cat) =>
+    cat.name.toLowerCase().includes(catSearch.toLowerCase())
+  );
+
+ const filteredItems = items.filter((item) => {
+  if (itemSearch) {
+    return item.name.toLowerCase().includes(itemSearch.toLowerCase());
+  }
+  return true;
+});
+
   return (
     <>
       <ToastContainer autoClose={1000} position="top-center" />
@@ -349,9 +377,33 @@ const POS = () => {
             Point Of Sale (POS) – {isParcel ? "Parcel Order" : `Table ${table.table_number}`}
           </h3>
 
+           {/* 🔍 SEARCH SECTION */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+
+            {/* Category Search */}
+            <input
+              type="text"
+              placeholder="Search categories..."
+              value={catSearch}
+              onChange={(e) => setCatSearch(e.target.value)}
+              className="bg-white text-black w-full sm:w-1/3 px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
+            />
+
+            {/* Item Search */}
+            <input
+              type="text"
+              placeholder="Search menu items..."
+              value={itemSearch}
+              onChange={(e) => setItemSearch(e.target.value)}
+              className="bg-white text-black w-full sm:flex-1 px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
+            />
+
+          </div>
+
           {/* CATEGORY TABS */}
+          {!itemSearch && (
           <div className="flex gap-2 mb-4 flex-wrap">
-            {categories.map((cat) => (
+            {filteredCategories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setActiveCat(cat.id)}
@@ -365,10 +417,16 @@ const POS = () => {
               </button>
             ))}
           </div>
+           )}
 
           {/* MENU ITEMS – LIST STYLE */}
           <div className="bg-white border rounded-lg divide-y">
-            {items.map((item) => (
+            {filteredItems.length === 0 && (
+              <p className="text-center text-gray-400 py-6">
+                No items found
+              </p>
+            )}
+            {filteredItems.map((item) => (
               // <div
               //   key={item.id}
               //   className="grid grid-cols-[1fr_90px_90px] items-center px-4 py-3 hover:bg-gray-50"

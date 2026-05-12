@@ -14,6 +14,9 @@ const MenuManagement = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [editingItemId, setEditingItemId] = useState(null);
 
+  const [isCatEdit, setIsCatEdit] = useState(false);
+  const [editingCatId, setEditingCatId] = useState(null);
+
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [loading, setLoading] = useState(false);
@@ -21,7 +24,13 @@ const MenuManagement = () => {
   /* ---------- MODAL STATE ---------- */
   const [showModal, setShowModal] = useState(false);
   const [showModalCategory, setShowModalCategory] = useState(false);
+
+  const [catShowModal, setCatShowModal] = useState(false);
+
   const accessToken = localStorage.getItem("accessToken")
+
+  const [filteredCategories, setFilteredCategories] = useState([]);
+
 
   /* ---------- FORM STATE ---------- */
   const [formData, setFormData] = useState({
@@ -36,6 +45,13 @@ const MenuManagement = () => {
   const [categoryFormData, setCategoryFormData] = useState({
     name: "",
   });
+
+   const [catFormData, setCatFormData] = useState({
+    name: "",
+  });
+
+  const [activeTab, setActiveTab] = useState("items");
+
 
   /* ---------------- FETCH DATA ---------------- */
 
@@ -69,23 +85,44 @@ const MenuManagement = () => {
 
   /* ---------------- FILTER ---------------- */
 
-  useEffect(() => {
-    let data = items;
+useEffect(() => {
+    if (activeTab === "items") {
+      let data = items;
 
-    if (selectedCategory !== "all") {
-      data = data.filter(
-        (item) => item.category?.id === Number(selectedCategory)
-      );
+      if (selectedCategory !== "all") {
+        data = data.filter(
+          (item) => item.category?.id === Number(selectedCategory)
+        );
+      }
+
+      if (search) {
+        data = data.filter((item) =>
+          item.name.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+
+      setFilteredItems(data);
     }
 
-    if (search) {
-      data = data.filter((item) =>
-        item.name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
+    if (activeTab === "categories") {
+      let data = categories;
 
-    setFilteredItems(data);
-  }, [search, selectedCategory, items]);
+      if (selectedCategory !== "all") {
+        data = data.filter(
+          (cat) => cat.id === Number(selectedCategory)
+        );
+      }
+
+      if (search) {
+        data = data.filter((cat) =>
+          cat.name.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+
+      setFilteredCategories(data);
+    }
+    setCurrentPage(1)
+  }, [search, selectedCategory, items, categories, activeTab]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -97,11 +134,45 @@ const MenuManagement = () => {
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
+   // categories
+  const indexOfLastCat = currentPage * itemsPerPage;
+  const indexOfFirstCat = indexOfLastCat - itemsPerPage;
+
+  const currentCategories = filteredCategories.slice(
+    indexOfFirstCat,
+    indexOfLastCat
+  );
+
+  const totalCategoryPages = Math.ceil(
+    filteredCategories.length / itemsPerPage
+  );
+
+
   /* ---------------- CREATE ITEM ---------------- */
 
   const createMenuItem = async () => {
-    if (!formData.name || !formData.price || !formData.category_id) {
+    const trimmedName = formData.name.trim().toLowerCase();
+
+    if (!trimmedName || !formData.price || !formData.category_id) {
       toast.warn("Please fill all required fields");
+      return;
+    }
+
+     const alreadyExists = items.some(
+      (item) =>
+        item.name.toLowerCase() === trimmedName &&
+        item.category?.id === Number(formData.category_id)
+    );
+
+    if (alreadyExists) {
+      toast.error("Item already exists in this category.");
+      return;
+    }
+
+    if (
+      Number(formData.price) <= 0
+    ) {
+      toast.warn("Price must be greater than 0");
       return;
     }
 
@@ -118,8 +189,19 @@ const MenuManagement = () => {
   };
 
   const createMenuCategory = async () => {
-    if (!categoryFormData.name) {
+    const trimmedName = categoryFormData.name.trim().toLowerCase();
+
+    if (!trimmedName) {
       toast.warn("Please fill required fields");
+      return;
+    }
+
+    const alreadyExists = categories.some(
+      (cat) => cat.name.toLowerCase() === trimmedName
+    );
+
+    if (alreadyExists) {
+      toast.error("Category name already exists. Please use a unique name.");
       return;
     }
 
@@ -152,6 +234,16 @@ const MenuManagement = () => {
     fetchItems();
   };
 
+   // delete category
+  const deleteCategory = async (id) => {
+    if (!window.confirm("Delete this Category?")) return;
+    await axios.delete(`${BASE_URL}menu-categories/${id}/`); {
+      toast.success("Menu category deleted")
+      fetchCategories();
+
+    }
+
+  };
 
   //   ---------------------EDIT ITEM----------
   const updateMenuItem = async () => {
@@ -198,6 +290,45 @@ const MenuManagement = () => {
     }
   };
 
+    const updateMenuCategory = async () => {
+    if (!catFormData.name.trim()) {
+      toast.warn("Category name is required");
+      return;
+    }
+
+    const alreadyExists = categories.some(
+      (cat) =>
+        cat.id !== editingCatId &&
+        cat.name.toLowerCase() === catFormData.name.trim().toLowerCase()
+    );
+
+    if (alreadyExists) {
+      toast.error("Category already exists");
+      return;
+    }
+
+    try {
+      await axios.patch(
+        `${BASE_URL}menu-categories/${editingCatId}/`,
+        {
+          name: catFormData.name.trim(),
+        }
+      );
+
+      toast.success("Category updated successfully");
+
+      setCatShowModal(false);
+      setIsCatEdit(false);
+      setEditingCatId(null);
+      setCatFormData({ name: "" });
+
+      fetchCategories();
+    } catch (err) {
+      console.error(err);
+      toast.error("Update failed");
+    }
+  };
+
   const toggleAvailability = async (item) => {
     try {
       await axios.patch(`${BASE_URL}toggle_item_availability/${item.id}/`, {
@@ -212,6 +343,14 @@ const MenuManagement = () => {
       toast.error("Failed to update status");
     }
   };
+
+   useEffect(() => {
+    setFilteredCategories(categories);
+  }, [categories]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   return (
     <>
@@ -290,7 +429,31 @@ const MenuManagement = () => {
           </select>
         </div>
 
+         <div className="flex gap-6 border-b mb-4">
+          <button
+            onClick={() => setActiveTab("items")}
+            className={`pb-2 ${activeTab === "items"
+              ? "border-b-2 border-orange-500 text-orange-600 font-semibold"
+              : "text-gray-500"
+              }`}
+          >
+            Items
+          </button>
 
+          <button
+            onClick={() => setActiveTab("categories")}
+            className={`pb-2 ${activeTab === "categories"
+              ? "border-b-2 border-orange-500 text-orange-600 font-semibold"
+              : "text-gray-500"
+              }`}
+          >
+            Categories
+          </button>
+        </div>
+
+
+ {activeTab === "items" && (
+          <>
         {/* ================= MOBILE CARDS ================= */}
         <div className="md:hidden grid grid-cols-1 gap-4 mb-6">
           {currentItems.map((item) => (
@@ -621,6 +784,144 @@ const MenuManagement = () => {
               </div>
             </div>
           </div>
+        )} 
+         </>
+        )}
+
+{/* categories tab */}
+        {activeTab === "categories" && (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {currentCategories.map((cat) => {
+                const count = items.filter(
+                  (item) => item.category?.id === cat.id
+                ).length;
+
+                return (
+                  <div
+                    key={cat.id}
+                    className="bg-white p-4 rounded-xl shadow border"
+                  >
+                    <h3
+                      className="font-semibold text-lg truncate"
+                      title={cat.name}
+                    >
+                      {cat.name}
+                    </h3>
+                    <p className="text-sm text-gray-500">{count} items</p>
+
+                    <div className="flex justify-end gap-2 mt-4">
+                      <button
+                        onClick={() => {
+                          setIsCatEdit(true);
+                          setEditingCatId(cat.id);
+                          setCatFormData({ name: cat.name });
+                          setCatShowModal(true);
+                        }}
+                        className="px-3 py-1 border rounded-md text-sm">
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => deleteCategory(cat.id)}
+                        className="px-3 py-1 bg-red-500 text-white rounded-md text-sm"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {catShowModal && (
+              <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+                <div className="bg-white w-full max-w-md rounded-2xl p-6 relative shadow-lg">
+                  <button
+                    onClick={() => setCatShowModal(false)}
+                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={20} />
+                  </button>
+
+                  <h2 className="text-xl font-bold mb-4">
+                    {isCatEdit ? "Edit Category" : "Add New Category"}
+                  </h2>
+
+                  <div className="space-y-4">
+                    <input
+                      placeholder="Category Name"
+                      className="w-full border bg-white px-4 py-2 rounded-md"
+                      value={catFormData.name}
+                      onChange={(e) => {
+                        setCatFormData({
+                          ...catFormData,
+                          name: e.target.value,
+                        });
+                      }}
+                    />
+
+                    <div className="flex justify-end gap-3 pt-2">
+                      <button
+                        onClick={() => setCatShowModal(false)}
+                        className="px-4 py-2 rounded-md border"
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        onClick={
+                          isCatEdit ? updateMenuCategory : createMenuCategory
+                        }
+                        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md"
+                      >
+                        {isCatEdit ? "Update" : "Create"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+            )}
+
+            {totalCategoryPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
+
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 border rounded-md text-sm disabled:opacity-50"
+                >
+                  Prev
+                </button>
+
+                {[...Array(totalCategoryPages)].map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentPage(index + 1)}
+                    className={`px-3 py-1 rounded-md text-sm ${currentPage === index + 1
+                      ? "bg-orange-500 text-white"
+                      : "border"
+                      }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) =>
+                      Math.min(prev + 1, totalCategoryPages)
+                    )
+                  }
+                  disabled={currentPage === totalCategoryPages}
+                  className="px-3 py-1 border rounded-md text-sm disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
 
         {/* category modal */}

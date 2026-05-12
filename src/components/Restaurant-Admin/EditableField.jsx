@@ -10,6 +10,7 @@ const EditableField = ({
     options = []
 }) => {
     const [isEditing, setIsEditing] = useState(false);
+    const isSelect = options && options.length > 0;
     const wrapperRef = useRef(null)
 
     // detect click outside
@@ -26,22 +27,35 @@ const EditableField = ({
     return (
         <div ref={wrapperRef} className="relative group">
             <label className="block mb-2 font-semibold">{label}</label>
-            {options.length > 0 ? (
-                <select
-                    name={name}
-                    value={value || ""}
-                    onChange={onChange}
-                    className={`w-full p-3 rounded-md border border-gray-300 focus:outline-none 
+
+            {isSelect ? (
+                isEditing ? (
+                    <select
+                        name={name}
+                        value={value || ""}
+                        onChange={onChange}
+                        disabled={!isEditing}
+                        className={`w-full p-3 rounded-md border border-gray-300 focus:outline-none 
             focus:ring-2 focus:ring-teal-500 transition
-            ${isEditing ? "bg-white" : "bg-gray-100 cursor-default"}`}
-                >
-                    <option value="">Select {label}</option>
-                    {options.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                        </option>
-                    ))}
-                </select>
+            ${isEditing ? "bg-white cursor-pointer" : "bg-gray-100 cursor-default"}`}
+                    >
+                        <option value="">Select {label}</option>
+                        {options.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </option>
+                        ))}
+                    </select>
+                ) :
+                    (
+                        <div className="relative">
+                            <div className="w-full p-3 rounded-md bg-gray-100 border border-gray-300 flex justify-between items-center cursor-default">
+                                <span>{value || "-"}</span>
+                            </div>
+
+
+                        </div>
+                    )
             ) : (
                 <input
                     type={type}

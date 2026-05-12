@@ -8,8 +8,11 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import BASE_URL from "../../../config";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import loginn from "../../assets/loginn.avif"; 
+import loginn from "../../assets/loginn.avif";
 import backclr from "../../assets/backclr.jpg";
+
+import { generateToken } from "../../getToken";
+import { sendTokenToBackend } from "../../api";
 
 console.log("BASE_URL:", BASE_URL);
 
@@ -35,22 +38,33 @@ const Login = () => {
     setLoading(true);
 
     try {
-      
+
       const response = await axios.post(`${BASE_URL}login/`, {
         email: formData.email,
         password: formData.password,
       });
 
       const { access, refresh, user_id, role, restaurant_id } = response.data;
-console.log("login res",response.data);
+      console.log("login res", response.data);
 
-     localStorage.setItem("login res",response.data)
+      localStorage.setItem("login res", response.data)
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
       localStorage.setItem("user_id", user_id);
-      localStorage.setItem("restaurant_id",restaurant_id)
+      localStorage.setItem("restaurant_id", restaurant_id)
       localStorage.setItem("role", role.toLowerCase());
-      localStorage.setItem("email",formData.email);
+      localStorage.setItem("email", formData.email);
+
+      // fcm token integration
+      try {
+        const fcmToken = await generateToken();
+
+        if (fcmToken) {
+          await sendTokenToBackend(fcmToken, access);
+        }
+      } catch (err) {
+        console.error("FCM setup failed:", err);
+      }
 
       window.dispatchEvent(new Event("userChange"));
 
@@ -78,9 +92,9 @@ console.log("login res",response.data);
     <>
       <ToastContainer position="top-right" autoClose={2000} />
 
-      
+
       <div
-  className="fixed inset-0 flex items-center justify-center overflow-hidden"
+        className="fixed inset-0 flex items-center justify-center overflow-hidden"
 
         style={{
           backgroundImage: `url(${backclr})`,

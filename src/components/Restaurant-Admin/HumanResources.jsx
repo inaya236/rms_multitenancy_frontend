@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 
 const HumanResources = () => {
 
-  const roles = ["All", "Manager", "Waiter"];
+  const roles = ["All", "Admin", "Manager", "Waiter"];
 
   const [staff, setStaff] = useState([]);
   const [role, setRole] = useState("All");
@@ -34,6 +34,20 @@ const HumanResources = () => {
    const [currentPage, setCurrentPage] = useState(1);
   const staffPerPage = 8;
 
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const isStrongPassword = (password) => {
+    // min 8 chars, 1 number, 1 special char
+    return /^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,}$/.test(password);
+  };
+
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [salaryError, setSalaryError] = useState("");
+
+const accessToken = localStorage.getItem("accessToken");
 
   /* ---------- FETCH STAFF ---------- */
 
@@ -548,10 +562,23 @@ const HumanResources = () => {
                 className="border w-full p-2 mb-3 bg-white text-black"
                 autoComplete="off"
                 value={newStaff.email}
-                onChange={(e) =>
-                  setNewStaff({ ...newStaff, email: e.target.value })
-                }
+                 onChange={(e) => {
+                  const value = e.target.value;
+                  setNewStaff({ ...newStaff, email: value });
+
+                  if (!value) {
+                    setEmailError("Email is required");
+                  } else if (!isValidEmail(value)) {
+                    setEmailError("Please enter a valid email address");
+                  } else {
+                    setEmailError("");
+                  }
+                }}
               />
+               {emailError && (
+                <p className="text-red-500 text-sm mb-2">{emailError}</p>
+              )}
+
 
               <input
                 type="password"
@@ -559,10 +586,22 @@ const HumanResources = () => {
                 className="border w-full p-2 mb-3 bg-white text-black"
                 autoComplete="new-password"
                 value={newStaff.password}
-                onChange={(e) =>
-                  setNewStaff({ ...newStaff, password: e.target.value })
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setNewStaff({ ...newStaff, password: value });
+
+                  if (!value) {
+                    setPasswordError("Password is required");
+                  } else if (!isStrongPassword(value)) {
+                    setPasswordError("Min 8 chars, include number & special char");
+                  } else {
+                    setPasswordError("");
+                  }
+                }}
               />
+               {passwordError && (
+                <p className="text-red-500 text-sm mb-2">{passwordError}</p>
+              )}
 
               <input
                 type="tel"
@@ -610,16 +649,31 @@ const HumanResources = () => {
               </select>
 
               {newStaff.role && newStaff.role !== "Admin" && (
+                <>
                 <input
                   type="number"
                   placeholder="Salary"
                   className="border w-full p-2 mb-3 bg-white text-black no-spinner"
                   onWheel={(e)=>e.target.blur(e)}
                   value={newStaff.salary}
-                  onChange={(e) =>
-                    setNewStaff({ ...newStaff, salary: e.target.value })
-                  }
+                  onChange={(e) => {
+                      const value = e.target.value;
+
+                      setNewStaff({ ...newStaff, salary: value });
+
+                      if (!value) {
+                        setSalaryError("Salary is required");
+                      } else if (Number(value) <= 0) {
+                        setSalaryError("Salary must be greater than 0");
+                      } else {
+                        setSalaryError("");
+                      }
+                    }}
                 />
+                {salaryError && (
+                    <p className="text-red-500 text-sm mb-2">{salaryError}</p>
+                  )}
+                   </>
               )}
 
 

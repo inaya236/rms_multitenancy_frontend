@@ -8,7 +8,6 @@ const NewOrder = () => {
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
   const [areaFilter, setAreaFilter] = useState("All");
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -82,6 +81,22 @@ const NewOrder = () => {
         </div>
       </div>
 
+<button onClick={() => {
+  const payload = {
+    notification: {
+      title: "Test Title",
+      body: "Test Body"
+    }
+  };
+
+  console.log("Message received:", payload);
+  alert(payload.notification.title + "\n" + payload.notification.body);
+
+}}
+className="text-black"
+>
+  Test Notification
+</button>
 
 
       {/* TABLE CARDS */}

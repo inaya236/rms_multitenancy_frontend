@@ -314,6 +314,7 @@ const features = restaurant?.subscription?.features || [];
     <div className="bg-light p-4">
 
 
+
       {/* ================= KPI ROW ================= */}
               {features.includes("ANALYTICS") && (
       <div className="row mb-4">
@@ -399,6 +400,7 @@ const features = restaurant?.subscription?.features || [];
 
         </div>
               )}
+
 
 
       </div>

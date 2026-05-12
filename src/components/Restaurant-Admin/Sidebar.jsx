@@ -25,7 +25,10 @@ import { useRestaurant } from "../../context/RestaurantContext";
 
 
 const Sidebar = ({ isOpen, closeSidebar, setOpenGstModal }) => {
+   const role= localStorage.getItem("role");
+
   // const toggleSidebar = () => setIsOpen(!isOpen);
+  const isWaiter = role === "waiter";
 
   const handleLogout = () => {
     localStorage.clear();
@@ -35,10 +38,10 @@ const Sidebar = ({ isOpen, closeSidebar, setOpenGstModal }) => {
 
   const { restaurant } = useRestaurant();
 
-const features = restaurant?.subscription?.features || [];
-const restaurantName = restaurant?.name;
-const restaurantLogo = restaurant?.logo;
-console.log("logo value:", restaurantLogo);
+  const features = restaurant?.subscription?.features || [];
+  const restaurantName = restaurant?.name;
+  const restaurantLogo = restaurant?.logo;
+  console.log("logo value:", restaurantLogo);
 
   // const features = JSON.parse(localStorage.getItem("features")) || [];
   // const restaurantName=localStorage.getItem("name")
@@ -68,11 +71,13 @@ console.log("logo value:", restaurantLogo);
 
 
             <ul className="flex flex-col gap-2">
-              <li className="">
-                <Link to="/adminDash" className="sidebar-link" onClick={closeSidebar}>
-                  <FaTachometerAlt className="me-2" /> Dashboard
-                </Link>
-              </li>
+              {!isWaiter && (
+                <li className="">
+                  <Link to="/adminDash" className="sidebar-link" onClick={closeSidebar}>
+                    <FaTachometerAlt className="me-2" /> Dashboard
+                  </Link>
+                </li>
+              )}
 
               <li className="">
                 <Link to="/new-order" className="sidebar-link" onClick={closeSidebar}>
@@ -83,20 +88,22 @@ console.log("logo value:", restaurantLogo);
               <li className="">
                 <Link to="/orders/active" className="sidebar-link " onClick={closeSidebar}>
                   <span className="w-5 min-w-[20px] flex justify-center">
-                  <FaShoppingCart className="me-2" /> 
+                    <FaShoppingCart className="me-2" />
                   </span>
                   Active Orders
                 </Link>
               </li>
 
+              {!isWaiter && (
                 <li className="">
                   <Link to="/completedorders" className="sidebar-link" onClick={closeSidebar}>
-                  <span className="w-5 min-w-[20px] flex justify-center">
-                    <FaFileInvoiceDollar className="" /> 
+                    <span className="w-5 min-w-[20px] flex justify-center">
+                      <FaFileInvoiceDollar className="" />
                     </span>
                     Completed Orders
                   </Link>
                 </li>
+              )}
 
               {/* <li className="nav-item mb-2">
                 <Link to="#" className="sidebar-link" onClick={closeSidebar}>
@@ -104,14 +111,16 @@ console.log("logo value:", restaurantLogo);
                 </Link>
               </li> */}
 
-              <li className="">
-                <Link to="human-resources" className="sidebar-link" onClick={closeSidebar}>
-                <span className="w-5 min-w-[20px] flex justify-center">
-                  <FaUserTie className="" /> 
-                  </span>
-                  Human Resource
-                </Link>
-              </li>
+              {!isWaiter && (
+                <li className="">
+                  <Link to="human-resources" className="sidebar-link" onClick={closeSidebar}>
+                    <span className="w-5 min-w-[20px] flex justify-center">
+                      <FaUserTie className="" />
+                    </span>
+                    Human Resource
+                  </Link>
+                </li>
+              )}
 
 
               {features.includes("CUSTOMER_INSIGHTS") && (
@@ -123,11 +132,11 @@ console.log("logo value:", restaurantLogo);
               )}
 
               {features.includes("FEEDBACK") && (
-              <li className="">
-                <Link to="feedback" className="sidebar-link" onClick={closeSidebar}>
-                  <VscFeedback className="me-2" size={20} /> FeedBack
-                </Link>
-              </li>
+                <li className="">
+                  <Link to="feedback" className="sidebar-link" onClick={closeSidebar}>
+                    <VscFeedback className="me-2" size={20} /> FeedBack
+                  </Link>
+                </li>
               )}
 
               <li className="nav-item relative">
@@ -146,22 +155,22 @@ console.log("logo value:", restaurantLogo);
                     {features.includes("TABLES") && (
                       <li className="">
                         <Link to="/inventory/tables" className="sidebar-link" onClick={closeSidebar}>
-                  <span className="w-5 min-w-[20px] flex justify-center">
-                          <FaChair className="" /> 
+                          <span className="w-5 min-w-[20px] flex justify-center">
+                            <FaChair className="" />
                           </span>
                           Table Inventory
                         </Link>
                       </li>
                     )}
 
-                      <li className="">
-                        <Link to="menu-management" className="sidebar-link" onClick={closeSidebar}>
-                  <span className="w-5 min-w-[20px] flex justify-center">
+                    <li className="">
+                      <Link to="menu-management" className="sidebar-link" onClick={closeSidebar}>
+                        <span className="w-5 min-w-[20px] flex justify-center">
                           <FaUtensils className="me-2" />
-                          </span>
-                           Menu Management
-                        </Link>
-                      </li>
+                        </span>
+                        Menu Management
+                      </Link>
+                    </li>
 
                     <li>
                       <button
