@@ -49,26 +49,7 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openGstModal, setOpenGstModal] = useState(false);
 
- const [notifications, setNotifications] = useState([
-  {
-    title: "New Order",
-    body: "Table 3 placed an order",
-    read: false,
-    time: new Date()
-  },
-  {
-    title: "Payment Received",
-    body: "Order #102 completed",
-    read: false,
-    time: new Date()
-  },
-  {
-    title: "Old Notification",
-    body: "Already read",
-    read: true,
-    time: new Date()
-  }
-]);
+ const [notifications, setNotifications] = useState([]);
 
   const [authState, setAuthState] = useState({
     accessToken: localStorage.getItem("accessToken"),
